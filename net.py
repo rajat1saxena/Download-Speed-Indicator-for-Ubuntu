@@ -11,7 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#    Certain parts of the code are inpired by syspeek indicator's code <https://code.launchpad.net/~vicox/syspeek/trunk>.
+#    Certain parts of the code are inspired by syspeek indicator's code <https://code.launchpad.net/~vicox/syspeek/trunk>.
 #    So this code is based on the work of Georg Schmidl
 
 import time
@@ -26,6 +26,9 @@ class net:
 	REC = 1
 	TRAN = 9
 
+	# Following flag will keep the thread running
+	Exec_flag = True
+
 	def check(self):
 		rec = 0
 		tran = 0
@@ -33,35 +36,39 @@ class net:
 		f = open('/proc/net/dev','r')
 		lines = f.readlines()
 		f.close()
-		
+
 		for line in lines:
 			row = line.split()
 			if row[0]=="wlan0:" or row[0]=="ppp0:":
 				rec = int(row[self.REC])
 				tran = int(row[self.TRAN])
-	
+
 		diff_rec = (rec - self.last_rec)/1024.0
 		diff_tran = (tran - self.last_tran)/1024.0
 
 		self.last_rec = rec
 		self.last_tran = tran
-	
+
 		print("Down: "+"%.2f"%diff_rec+" Kbps")
-		
-		return "Down: "+"%.2f"%diff_rec+" Kbps"
+
+		return ""+"%.2f"%diff_rec+" Kbps"
 
 class net_thread(threading.Thread):
 	def __init__(self,indi):
 		threading.Thread.__init__(self)
+		self._stop = False
 		self.indi = indi
 
 	def update_ind(self,rec_val):
 		self.indi.set_label(rec_val)
-				
+
+	def stop(self):
+		self._stop = True
+
 
 	def run(self):
 		obj = net()
-		while(True):
+		while not self._stop:
 			rec_val=obj.check()
 			gobject.idle_add(self.update_ind,rec_val)
 			time.sleep(1)

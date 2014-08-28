@@ -32,7 +32,12 @@ class app:
 		os.spawnlp(os.P_NOWAIT,'gnome-system-monitor','gnome-system-monitor')
 		os.wait3(os.WNOHANG)
 
-	ind = appindicator.Indicator("netspeed","TestApp",appindicator.CATEGORY_APPLICATION_STATUS)
+	def close_prog(self):
+		print "Bye dear!"
+		packets.stop()
+		gtk.main_quit()
+
+	ind = appindicator.Indicator("netspeed","network-receive",appindicator.CATEGORY_APPLICATION_STATUS)
 	ind.set_status(appindicator.STATUS_ACTIVE)
 	#ind.set_label("Down:")
 
@@ -43,12 +48,18 @@ class app:
 	item = gtk.MenuItem("System Monitor")
 	item.connect('activate',invoke_sysmon)
 
+	item2 = gtk.MenuItem("Exit")
+	item2.connect('activate',close_prog)
+
 	menu.append(item)
-	
+	menu.append(item2)
+
 	item.show()
-	
+	item2.show()
+
 	ind.set_menu(menu)
 
+	global packets
 	packets = net.net_thread(ind)
 
 	packets.start()
@@ -56,10 +67,8 @@ class app:
 
 
 if __name__ == "__main__":
-	
-	
+
+
 	app = app()
-			
+
 	gtk.main()
-
-
