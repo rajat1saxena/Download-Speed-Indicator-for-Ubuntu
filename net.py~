@@ -49,7 +49,7 @@ class net:
 		self.last_rec = rec
 		self.last_tran = tran
 
-		#print("Down: "+"%.2f"%diff_rec+" Kbps")
+		print("Down: "+"%.2f"%diff_rec+" Kbps")
 
 		return ""+"%.2f"%diff_rec+" Kbps"
 
