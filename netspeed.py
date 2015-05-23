@@ -15,10 +15,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import sys
+import signal
 import pygtk
 pygtk.require('2.0')
 import gtk
-import appindicator
+try:
+	import appindicator
+except ImportError:
+	sys.stderr.write("Dependency unmet: Install python-appindicator package\n")
+	sys.exit(0);
 import net
 import threading
 import gobject
@@ -33,13 +39,16 @@ class app:
 		os.wait3(os.WNOHANG)
 
 	def close_prog(self):
-		print "Bye dear!"
+		print "Bye."
 		packets.stop()
 		gtk.main_quit()
+		sys.exit(0)
 
 	ind = appindicator.Indicator("netspeed","network-receive",appindicator.CATEGORY_APPLICATION_STATUS)
 	ind.set_status(appindicator.STATUS_ACTIVE)
 	#ind.set_label("Down:")
+
+	print('Do not Press Ctrl+C to exit! It won\'t work\n')
 
 	#create a menu
 	menu = gtk.Menu()
@@ -64,11 +73,8 @@ class app:
 
 	packets.start()
 
-
-
 if __name__ == "__main__":
 
-
 	app = app()
-
+	
 	gtk.main()
